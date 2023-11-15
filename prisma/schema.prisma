@@ -11,27 +11,39 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  phone String  @unique
-  name  String
-  order Order[]
+  id        Int      @id @default(autoincrement())
+  phone     String   @unique
+  name      String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  order     Order[]
 }
 
 model Menu {
-  id    Int     @id @default(autoincrement())
-  name  String
-  unitPrice Float
-  imageUrl String
-  ingredients String[] 
-  order Order @relation(fields: [orderId], references: [id])
-  orderId Int 
+  id          Int         @id @default(autoincrement())
+  productName        String 
+  unitPrice   Float
+  quantity Int
+  imageUrl    String 
+  imageId String
+  createdAt   DateTime    @default(now()) @db.Timestamptz(3)
+  orderItem   OrderItem[]
 }
 
 model Order {
-  id    Int     @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   totalPrice Float
-  time DateTime @db.Timetz()
-  user User     @relation(fields: [userId], references: [id])
-  userId Int 
-  menu Menu[]
+  createdAt  DateTime    @default(now()) @db.Timestamptz(3)
+  user       User        @relation(fields: [userId], references: [id])
+  userId     Int
+  orderItem  OrderItem[]
+}
+
+model OrderItem {
+  id         Int   @id @default(autoincrement())
+  order      Order @relation(fields: [orderId], references: [id])
+  orderId    Int
+  menu       Menu  @relation(fields: [menuId], references: [id])
+  menuId     Int
+  quantity   Int
+  price Float
 }

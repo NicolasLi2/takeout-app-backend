@@ -1,14 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import menuRouter from './routes/menu.js';
+import orderRouter from './routes/order.js';
+import userRouter from './routes/user.js';
 import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use('/menu', menuRouter);
 app.use('/order', orderRouter);
