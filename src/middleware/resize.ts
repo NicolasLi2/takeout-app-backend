@@ -3,8 +3,8 @@ import fs from 'node:fs';
 
 // @ts-ignore
 export const resizeImage = async (req, res, next) => {
-    await sharp(req.file.buffer)
-        .resize(128, 128, {
+    req.file.buffer = await sharp(req.file.buffer)
+        .resize(200, 200, {
             fit: 'fill',
             position: sharp.gravity.center,
         })

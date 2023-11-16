@@ -1,26 +1,26 @@
 import express from 'express';
-import { createMenu } from '../controller/menu.js';
+import {
+    createMenu,
+    deleteMenu,
+    getMenuById,
+    getMenus,
+    updateMenu,
+} from '../controller/menu.js';
 import { uploadImage } from '../middleware/multer.js';
 import { resizeImage } from '../middleware/resize.js';
 
 const router = express.Router();
 
-router.get('/');
+router.get('/get-menus', getMenus);
+router.get('/get-menu/:menuId', getMenuById);
 router.post(
     '/create-menu',
     uploadImage.single('productImage'),
-    // (req, res, next) => {
-    //     console.log('req.file:', req?.file);
-    //     next();
-    // },
     resizeImage,
-    // (req, res, next) => {
-    //     console.log('after resize');
-    //     next();
-    // },
-    // (req, res) => console.log('after cloud'),
-
     createMenu
 );
+
+router.delete('/delete-menu/:menuId', deleteMenu);
+router.patch('/update-menu/:menuId', updateMenu);
 
 export default router;

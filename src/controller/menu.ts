@@ -1,15 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import cloudinary from '../util/cloud.js';
 import streamifier from 'streamifier';
+
 const prisma = new PrismaClient();
 
-// let imageUrl = '';
-// let imageId = '';
 // @ts-ignore
 export const createMenu = async (req, res, next) => {
     const { productName, unitPrice, quantity } = req.body;
     const { file } = req;
     if (!file) return res.status(400).json({ error: 'Image file is missing!' });
+
 
     let cld_upload_stream = cloudinary.uploader.upload_stream(
         { folder: 'menu' },
@@ -23,55 +23,25 @@ export const createMenu = async (req, res, next) => {
             // imageUrl = secure_url;
             // imageId = public_id;
 
-            // TODO change price and quantity to number
             try {
-                const result = await prisma.menu.create({
+                await prisma.menu.create({
                     data: {
                         productName,
-                        unitPrice,
-                        quantity,
+                        unitPrice: parseFloat(unitPrice),
+                        quantity: parseInt(quantity),
                         imageUrl: secure_url,
                         imageId: public_id,
                     },
                 });
-                res.json(result);
             } catch (error) {
                 console.log('error:', error);
                 // res.status(400).json({ message: error?.message })
             }
-            // req.body.secure_url = secure_url;
-            // req.body.public_id = public_id;
-            // console.log('secure_url:', secure_url);
-            // console.log('req.body.secure_url:', req.body.secure_url);
         }
     );
     streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
-    next();
+    res.status(201).json({ message: 'success' });
 };
-
-// @ts-ignore
-// export const createMenu = async (req, res) => {
-//     const { productName, unitPrice, quantity } = req.body;
-//     // console.log(productName, unitPrice, quantity);
-//     if (imageUrl && imageId) {
-//         console.log('imageUrl:', imageUrl);
-//         try {
-//             const result = await prisma.menu.create({
-//                 data: {
-//                     productName,
-//                     unitPrice,
-//                     quantity,
-//                     imageUrl,
-//                     imageId,
-//                 },
-//             });
-//             res.json(result);
-//         } catch (error) {
-//             console.log('error:', error);
-//             // res.status(400).json({ message: error?.message })
-//         }
-//     }
-// };
 
 // @ts-ignore
 export const getMenus = async (req, res) => {
@@ -81,5 +51,71 @@ export const getMenus = async (req, res) => {
     } catch (error) {
         console.log('error:', error);
         // res.status(500).json({ msg: error.message })
+    }
+};
+
+// @ts-ignore
+export const getMenuById = async (req, res) => {
+    try {
+        const response = await prisma.menu.findUnique({
+            where: {
+                id: Number(req.params.menuId),
+            },
+        });
+        res.status(200).json(response);
+    } catch (error) {
+        console.log('error:', error);
+        // res.status(404).json({ msg: error.message })
+    }
+};
+
+//@ts-ignore
+export const deleteMenu = async (req, res) => {
+    const id = Number(req.params.menuId);
+    try {
+        const response = await prisma.menu.findUnique({
+            where: {
+                id,
+            },
+        });
+        let imageId = response?.imageId;
+        if (imageId) {
+            cloudinary.uploader
+                .destroy(imageId)
+                .then((result) => console.log(result));
+        }
+    } catch (error) {
+        console.log('error:', error);
+    }
+
+    try {
+        const product = await prisma.menu.delete({
+            where: {
+                id,
+            },
+        });
+        res.status(200).json(product);
+    } catch (error) {
+        console.log('error:', error);
+        // res.status(400).json({ msg: error.message })
+    }
+};
+
+//@ts-ignore
+export const updateMenu = async (req, res) => {
+    const { unitPrice, quantity } = req.body;
+    try {
+        const product = await prisma.menu.update({
+            where: {
+                id: Number(req.params.menuId),
+            },
+            data: {
+                unitPrice,
+                quantity,
+            },
+        });
+        res.status(200).json(product);
+    } catch (error) {
+        console.log('error:', error);
     }
 };

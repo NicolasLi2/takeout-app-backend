@@ -10,40 +10,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  phone     String   @unique
-  name      String
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  order     Order[]
-}
+// model User {
+//   id        Int      @id @default(autoincrement())
+//   phone     String   @unique
+//   name      String
+//   createdAt DateTime @default(now()) @db.Timestamptz(3)
+// }
 
 model Menu {
-  id          Int         @id @default(autoincrement())
-  productName        String 
+  id          Int      @id @default(autoincrement())
+  productName String
   unitPrice   Float
-  quantity Int
-  imageUrl    String 
-  imageId String
-  createdAt   DateTime    @default(now()) @db.Timestamptz(3)
-  orderItem   OrderItem[]
+  quantity    Int
+  imageUrl    String
+  imageId     String
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
 }
 
 model Order {
-  id         Int         @id @default(autoincrement())
-  totalPrice Float
-  createdAt  DateTime    @default(now()) @db.Timestamptz(3)
-  user       User        @relation(fields: [userId], references: [id])
-  userId     Int
-  orderItem  OrderItem[]
+  id          Int         @id @default(autoincrement())
+  totalPrice  Float
+  userName    String
+  userPhone   String
+  userAddress String?
+  orderItem   OrderItem[]
+  createdAt   DateTime    @default(now()) @db.Timestamptz(3)
 }
 
 model OrderItem {
-  id         Int   @id @default(autoincrement())
-  order      Order @relation(fields: [orderId], references: [id])
-  orderId    Int
-  menu       Menu  @relation(fields: [menuId], references: [id])
-  menuId     Int
-  quantity   Int
-  price Float
+  id          Int    @id @default(autoincrement())
+  order       Order  @relation(fields: [orderId], references: [id])
+  orderId     Int
+  productName String
+  unitPrice   Float
+  quantity    Int
+  imageUrl    String?
 }
