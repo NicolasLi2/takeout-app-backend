@@ -25,7 +25,7 @@ export const createOrder = async (req, res, next) => {
     // console.log('totalPrice:', totalPrice);
 
     try {
-        await prisma.order.create({
+        const result = await prisma.order.create({
             data: {
                 totalPrice,
                 userName,
@@ -36,8 +36,25 @@ export const createOrder = async (req, res, next) => {
                 },
             },
         });
+        res.status(201).json(result);
     } catch (error) {
         console.log('error:', error);
     }
-    res.status(201).json({ message: 'success' });
+};
+
+//@ts-ignore
+export const getOrder = async (req, res, next) => {
+    try {
+        const result = await prisma.order.findUnique({
+            where: {
+                id: Number(req.params.orderId),
+            },
+            include: {
+                orderItem: true,
+            },
+        });
+        res.status(201).json(result);
+    } catch (error) {
+        console.log('error:', error);
+    }
 };
